@@ -1,0 +1,17 @@
+/**
+ * Hide Prices for certain categories for guest account
+ */
+
+add_filter( 'woocommerce_get_price_html','hide_price_on_taxonomy');
+function hide_price_on_taxonomy( $price) {
+global $product;
+$hide_for_categories = array( 'hide-price' ); // Hide for these category slugs / IDs
+if(! is_user_logged_in()) {//guest
+if ( has_term( $hide_for_categories, 'product_cat', $product->get_id() ) ) { // Don't show price when it's in one of the categories
+      $price = '<div><a href="' . get_permalink( wc_get_page_id( 'myaccount' ) ) . '">' . __( 'Please login to see the price', 'bbloomer' ) . '</a></div>';
+      remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10 );
+      remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+      add_filter( 'woocommerce_is_purchasable', '__return_false' );} 
+}
+return $price; // Return original price 
+}
